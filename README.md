@@ -1,18 +1,3 @@
 # Dori - telegram bot for Taimyr college
 
-For configure it create file **.env** with:
-```
-# [bot-settings]
-BOT_TOKEN = your_token_here
-
-# [webhooks and ssl]
-WEB_SERVER_HOST = for example, localhost
-WEB_SERVER_PORT = for example, 8080 or same
-BASE_WEBHOOK_URL = https://google.com
-
-# [database-settings]
-DB_HOST = localhost
-DB_USER = bot 
-DB_PASS = bot 
-DB_NAME = bot 
-```
+For configure it create file **.env** as **.env.example**

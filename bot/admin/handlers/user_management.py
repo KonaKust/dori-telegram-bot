@@ -1,10 +1,13 @@
-from aiogram import Router, F
-from aiogram.types import CallbackQuery
+import os
+
+import database.admin as admin_db  # Импортируем класс (ещё не изучено)
+from aiogram import F, Router
 from aiogram.enums import ParseMode
-from loguru import logger
+from aiogram.types import CallbackQuery
 from bot.admin.filters.is_admin import IsAdmin
 from bot.admin.keyboards import user_managment as kb
-import database.admin as admin_db  # Импортируем класс (ещё не изучено)
+from loguru import logger
+from aiogram.types import FSInputFile
 
 global db
 router = Router()
@@ -23,7 +26,7 @@ async def user_managment_menu_handler(callback: CallbackQuery):
 async def user_list_handler(callback: CallbackQuery):
     logger.info("Users_list command handled!")
     users = await db.list_of_all_users()
-    response_text = "Список пользователей:\n"
+    response_text = ""
     for user in users:
         if user["username"] != None:
             response_text += (
@@ -31,10 +34,14 @@ async def user_list_handler(callback: CallbackQuery):
             )
         else:
             response_text += f"#{user ['id']} - {user['first_name']} {user['last_name']} (ID: {user['user_id']})\n"
-    await callback.message.edit_text(
-        response_text, parse_mode=ParseMode.HTML, reply_markup=kb.admins_kb
-    )
+    with open("UsersList.md", "w+") as f:
+        f.write(response_text)
+    await callback.message.delete()
+    file = FSInputFile("UsersList.md")
+    await callback.message.answer_document(file)
+    await callback.message.answer("Что-нибудь ещё?", reply_markup=kb.admins_kb)
     await callback.answer()
+    os.remove("UsersList.md")
     logger.info("Users list sended")
 
 
