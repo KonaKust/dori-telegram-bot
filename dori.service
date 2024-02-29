@@ -1,0 +1,19 @@
+[Unit]
+Description=
+After=network.target
+After=redis.service
+After=mariadb.service
+After=nginx.service
+After=tally-webhook.service
+
+[Service]
+EnvironmentFile=-/etc/sysconfig/dori
+ExecStart=/srv/dori/env/bin/python3 main.py
+ExecReload=/srv/dori/env/bin/python3 main.py
+WorkingDirectory=/srv/dori/
+KillMode=process
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
