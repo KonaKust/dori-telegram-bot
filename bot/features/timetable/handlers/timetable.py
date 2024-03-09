@@ -1,6 +1,9 @@
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
+from aiogram.exceptions import TelegramBadRequest
 from loguru import logger
+from contextlib import suppress
+
 
 from bot.features.timetable.keyboards import timetable_menu as kb
 from bot.features.timetable.convert import convert_timetable
@@ -28,11 +31,13 @@ async def convert_timetable_callback_handler(callback: CallbackQuery) -> None:
 
 @router.callback_query(F.data == "get_timetable")
 async def send_timetable_callback_handler(callback: CallbackQuery) -> None:
-    await callback.message.delete()
+    with suppress(TelegramBadRequest):
+        await callback.message.delete()
     await callback.message.answer_document(redis.get("pdf"))
     await callback.message.answer(
         "Возвращайся в главное меню ⛔︎", reply_markup=kb.menu_kb
     )
+    await callback.answer()
 
 
 @router.callback_query(F.data == "subscribe")
