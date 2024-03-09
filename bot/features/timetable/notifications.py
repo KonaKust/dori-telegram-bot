@@ -16,7 +16,7 @@ redis = redis.Redis(host="localhost", port=6379, decode_responses=True)
 async def notify_timetable_subs():
     users = await timetable_db.id_of_subscribers()
     try:
-        converted_pdf = FSInputFile("/home/dori/bot/features/timetable/Расписание.pdf")
+        converted_pdf = FSInputFile("/srv/dori/bot/features/timetable/Расписание.pdf")
         pdf = await bot.send_document(list(users)[0], converted_pdf)
         pdf_id = pdf.document.file_id
         redis.set(name="pdf", value=pdf_id)

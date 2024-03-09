@@ -59,7 +59,7 @@ async def paths():
     global swap
     global png
 
-    module = Path("/home", "dori", "bot", "features", "timetable")
+    module = Path("/srv", "dori", "bot", "features", "timetable")
     new_doc = Path("/home", "nas_share", "01_Расписание", "00_Завтра").glob("*.docx")
     www_png = Path("/home", "nas_web")
 
