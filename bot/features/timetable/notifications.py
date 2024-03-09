@@ -12,14 +12,22 @@ from runners.launch import bot
 timetable_db = timetable_db.Timetable()
 redis = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
+if not redis.get("saved_pdf"):
+    redis.set(name="saved_pdf", value="")
+    redis.set(name="old_pdf", value="")
+    redis.set(name="new_pdf", value="")
+    logger.warning('Redis key "saved_pdf" was None!')
+
+if not redis.get("old_pdf"):
+    redis.set(name="old_pdf", value=(redis.get("new_pdf")))
+    logger.warning('Redis key "old_pdf" was None!')
+
 
 async def notify_timetable_subs():
     users = await timetable_db.id_of_subscribers()
     current_date_pdf = f"{datetime.date.today()}.pdf"
     try:
-        converted_pdf = FSInputFile(
-            f"/srv/dori/bot/features/timetable/{current_date_pdf}"
-        )
+        converted_pdf = str(f"/srv/dori/bot/features/timetable/{current_date_pdf}")
 
         if not (redis.get("saved_pdf") == current_date_pdf):
             old_pdf_id = redis.get("new_pdf")
