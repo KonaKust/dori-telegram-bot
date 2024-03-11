@@ -66,8 +66,8 @@ async def paths():
     global png
     global pdf_yesterday
 
-    current_date_doc = f"{datetime.date.today()}.docx"
-    current_date_pdf = f"{datetime.date.today()}.pdf"
+    current_date_doc = f"{datetime.date.today() + datetime.timedelta(days=1)}.docx"
+    current_date_pdf = f"{datetime.date.today() + datetime.timedelta(days=1)}.pdf"
 
     module = Path("/srv", "dori", "bot", "features", "timetable")
     new_doc = Path("/home", "nas_share", "01_Расписание", "00_Завтра").glob("*.docx")

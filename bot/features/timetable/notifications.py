@@ -25,7 +25,7 @@ if not redis.get("old_pdf"):
 
 async def notify_timetable_subs():
     users = await timetable_db.id_of_subscribers()
-    current_date_pdf = f"{datetime.date.today()}.pdf"
+    current_date_pdf = f"{datetime.date.today() + datetime.timedelta(days=1)}.pdf"
     try:
         converted_pdf = str(f"/srv/dori/bot/features/timetable/{current_date_pdf}")
 
