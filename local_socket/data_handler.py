@@ -11,7 +11,7 @@ async def process_data(client_ip, json_data):
             await notify_admin(json_data["notify_admin"])
 
         if "timetable" in json_data:
-            await notify_timetable_subs()
+            await notify_timetable_subs(json_data["timetable"])
 
         if "factorio" in json_data:
             await notify_admin(json_data["factorio"])

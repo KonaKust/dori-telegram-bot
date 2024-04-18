@@ -66,7 +66,7 @@ async def paths():
     global doc
     global pdf
     global png
-    global pdf_yesterday
+    global old_pdf
 
     current_date_doc = f"{datetime.date.today() + datetime.timedelta(days=1)}.docx"
     current_date_pdf = f"{datetime.date.today() + datetime.timedelta(days=1)}.pdf"
@@ -78,6 +78,7 @@ async def paths():
     doc = Path(module, current_date_doc)
     pdf = Path(module, current_date_pdf)
     png = Path(www_png, "00_today/")
+    old_pdf = Path(module).glob("*.pdf")
 
 
 def extract_timetable_date(text):
@@ -106,12 +107,12 @@ async def convert_timetable():
         shutil.copy(str(file), str(doc))
         file.unlink()
     if doc.is_file():
+        old_pdf.unlink()
         if await convert_doc(doc, module):
             converted_date = get_pdf_date(pdf)
             extracted_date_pdf = Path(module, converted_date)
             shutil.move(pdf, extracted_date_pdf)
             await notify_timetable_subs(converted_date)
-            extracted_date_pdf.unlink()
             if await convert_pdf(pdf, extracted_date_pdf):
                 await notify_admin("Расписание успешно сконвертировано!")
                 logger.info("Timetable converted manual")

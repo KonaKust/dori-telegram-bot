@@ -1,10 +1,12 @@
 import datetime
+import re
 import shutil
 import subprocess
 from pathlib import Path
 
 from loguru import logger
 from pdf2image import convert_from_path
+from pypdf import PdfReader
 
 # Need install "poppler" and libreoffice
 
@@ -54,9 +56,8 @@ async def paths():
     global new_doc
     global doc
     global pdf
-    global swap
     global png
-    global pdf_yesterday
+    global old_pdf
 
     current_date_doc = f"{datetime.date.today() + datetime.timedelta(days=1)}.docx"
     current_date_pdf = f"{datetime.date.today() + datetime.timedelta(days=1)}.pdf"
@@ -68,6 +69,27 @@ async def paths():
     doc = Path(module, current_date_doc)
     pdf = Path(module, current_date_pdf)
     png = Path(www_png, "00_today/")
+    old_pdf = Path(module).glob("*.pdf")
+
+
+def extract_timetable_date(text):
+    # Используем регулярное выражение для извлечения даты из текста расписания
+    date_pattern = r"\s+(\d{2}\.\d{2}\.\d{4})"
+    match = re.search(date_pattern, text)
+    if match:
+        # Если найдено соответствие, возвращаем дату
+        return match.group(1)
+    return None
+
+
+def get_pdf_date(pdf_path):
+    # Получаем текст из первой страницы PDF
+    reader = PdfReader(pdf_path)
+    page = reader.pages[0]
+    text = page.extract_text()
+
+    # Извлекаем дату из текста расписания
+    return extract_timetable_date(text)
 
 
 async def convert_timetable():
@@ -76,15 +98,19 @@ async def convert_timetable():
         shutil.copy(str(file), str(doc))
         file.unlink()
     if doc.is_file():
+        old_pdf.unlink()
         res_pdf = await convert_doc(doc, module)
         if res_pdf == 1:
+            converted_date = get_pdf_date(pdf)
+            extracted_date_pdf = Path(module, converted_date)
+            shutil.move(pdf, extracted_date_pdf)
             res_png = await convert_pdf(pdf, png)
             if res_png == 1:
                 logger.info("Timetable converted automatically")
-                return 1
+                return 1, converted_date
             else:
-                return res_png
+                return res_png, None
         else:
-            return res_pdf
+            return res_pdf, None
     else:
-        return 0
+        return 0, None

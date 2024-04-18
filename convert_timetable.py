@@ -20,16 +20,16 @@ async def send_notification(data):
 
 
 async def main() -> None:
-    convert = await convert_timetable()
-    if convert == 0:
+    code, date = await convert_timetable()
+    if code == 0:
         return
-    elif convert == 1:
+    elif code == 1:
         data = {
             "notify_admin": "Расписание успешно сконвертировано!",
-            "timetable": True,
+            "timetable": date,
         }
     else:
-        data = {"notify_admin": convert}
+        data = {"notify_admin": code}
     await send_notification(data)
 
 
