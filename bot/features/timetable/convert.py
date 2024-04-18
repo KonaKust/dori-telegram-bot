@@ -1,4 +1,5 @@
 import datetime
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -7,6 +8,7 @@ from bot.admin.notifications import notify_admin
 from bot.features.timetable.notifications import notify_timetable_subs
 from loguru import logger
 from pdf2image import convert_from_path
+from pypdf import PdfReader
 
 # Need install "poppler" and libreoffice
 
@@ -78,6 +80,26 @@ async def paths():
     png = Path(www_png, "00_today/")
 
 
+def extract_timetable_date(text):
+    # Используем регулярное выражение для извлечения даты из текста расписания
+    date_pattern = r"\s+(\d{2}\.\d{2}\.\d{4})"
+    match = re.search(date_pattern, text)
+    if match:
+        # Если найдено соответствие, возвращаем дату
+        return match.group(1)
+    return None
+
+
+def get_pdf_date(pdf_path):
+    # Получаем текст из первой страницы PDF
+    reader = PdfReader(pdf_path)
+    page = reader.pages[0]
+    text = page.extract_text()
+
+    # Извлекаем дату из текста расписания
+    return extract_timetable_date(text)
+
+
 async def convert_timetable():
     await paths()
     for file in new_doc:
@@ -85,8 +107,12 @@ async def convert_timetable():
         file.unlink()
     if doc.is_file():
         if await convert_doc(doc, module):
-            await notify_timetable_subs()
-            if await convert_pdf(pdf, png):
+            converted_date = get_pdf_date(pdf)
+            extracted_date_pdf = Path(module, converted_date)
+            shutil.move(pdf, extracted_date_pdf)
+            await notify_timetable_subs(converted_date)
+            extracted_date_pdf.unlink()
+            if await convert_pdf(pdf, extracted_date_pdf):
                 await notify_admin("Расписание успешно сконвертировано!")
                 logger.info("Timetable converted manual")
     else:
