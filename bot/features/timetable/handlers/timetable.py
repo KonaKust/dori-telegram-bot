@@ -30,8 +30,8 @@ async def convert_timetable_callback_handler(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == "get_timetable")
 async def send_timetable_callback_handler(callback: CallbackQuery) -> None:
     await callback.message.edit_reply_markup()
-    await callback.message.answer_document(redis.get("new_pdf"), reply_markup=None)
-    await callback.message.answer_document(redis.get("old_pdf"))
+    await callback.message.answer_document(redis.get("old_pdf"), reply_markup=None)
+    await callback.message.answer_document(redis.get("new_pdf"))
     await callback.message.answer(
         "Возвращайся в главное меню ⛔︎", reply_markup=kb.menu_kb
     )
