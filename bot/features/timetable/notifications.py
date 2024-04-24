@@ -32,8 +32,9 @@ async def notify_timetable_subs(date):
         pdf = await bot.send_document(list(users)[0], FSInputFile(converted_pdf))
         pdf_id = pdf.document.file_id
         if date > today:
-            if redis.get("saved_pdf") != today:
-                redis.set(name="old_pdf", value=(redis.get("saved_pdf")))
+            saved_pdf = redis.get("saved_pdf")
+            if saved_pdf != today:
+                redis.set(name="old_pdf", value=saved_pdf)
                 redis.set(name="saved_pdf", value=today)
             redis.set(name="new_pdf", value=pdf_id)
         else:
