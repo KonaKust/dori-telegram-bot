@@ -33,9 +33,10 @@ async def notify_timetable_subs(date):
         pdf_id = pdf.document.file_id
         if date > today:
             saved_pdf = redis.get("saved_pdf")
-            if saved_pdf != today:
+            old_pdf = redis.get("old_pdf")
+            if saved_pdf != old_pdf:
                 redis.set(name="old_pdf", value=saved_pdf)
-                redis.set(name="saved_pdf", value=today)
+                redis.set(name="saved_pdf", value=old_pdf)
             redis.set(name="new_pdf", value=pdf_id)
         else:
             redis.set(name="old_pdf", value=pdf_id)
