@@ -13,14 +13,10 @@ from runners.launch import bot
 timetable_db = timetable_db.Timetable()
 redis = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
-if not redis.get("saved_pdf"):
+if not redis.get("old_pdf"):
     redis.set(name="old_pdf", value="")
     redis.set(name="new_pdf", value="")
     redis.set(name="saved_pdf", value="")
-    logger.warning('Redis key "saved_pdf" was None!')
-
-if not redis.get("old_pdf"):
-    redis.set(name="old_pdf", value=(redis.get("new_pdf")))
     logger.warning('Redis key "old_pdf" was None!')
 
 
