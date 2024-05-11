@@ -12,8 +12,9 @@ from runners.launch import bot
 
 timetable_db = timetable_db.Timetable()
 redis = redis.Redis(host="localhost", port=6379, decode_responses=True)
+prepare = redis.get("old_pdf")
 
-if not redis.get("old_pdf"):
+if prepare == None:
     redis.set(name="old_pdf", value="")
     redis.set(name="new_pdf", value="")
     redis.set(name="saved_pdf", value="")
@@ -29,10 +30,10 @@ async def notify_timetable_subs(date):
         pdf_id = pdf.document.file_id
         if date > today:
             saved_pdf = redis.get("saved_pdf")
-            old_pdf = redis.get("old_pdf")
-            if saved_pdf != old_pdf:
-                redis.set(name="old_pdf", value=saved_pdf)
-                redis.set(name="saved_pdf", value=old_pdf)
+            new_pdf = redis.get("new_pdf")
+            if saved_pdf != today:
+                redis.set(name="old_pdf", value=new_pdf)
+                redis.set(name="saved_pdf", value=today)
             redis.set(name="new_pdf", value=pdf_id)
         else:
             redis.set(name="old_pdf", value=pdf_id)
